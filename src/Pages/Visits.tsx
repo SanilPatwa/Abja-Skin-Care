@@ -92,23 +92,39 @@ const Visits = () => {
         </button>
       </div>
 
-      {/* Visits List */}
-      <div className="clients-grid">
-        {visits.map((visit) => (
-          <div key={visit.id} className="client-card">
-            <p className="client-name">{visit.clientName}</p>
-            <span className="client-type-badge">{visit.status}</span>
-            <p className="client-meta">👤 {visit.salesRep}</p>
-            <p className="client-meta">📅 {visit.date}</p>
-            <p className="client-meta">📝 {visit.notes}</p>
-            <button
-              className="btn-delete"
-              onClick={() => handleDelete(visit.id)}
-            >
-              Delete
-            </button>
-          </div>
-        ))}
+      {/* Visits Table */}
+      <div className="table-container">
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Client Name</th>
+              <th>Sales Rep</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Notes</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visits.map((visit) => (
+              <tr key={visit.id}>
+                <td><strong>{visit.clientName}</strong></td>
+                <td>👤 {visit.salesRep}</td>
+                <td>📅 {visit.date}</td>
+                <td><span className="client-type-badge">{visit.status}</span></td>
+                <td>📝 {visit.notes}</td>
+                <td>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDelete(visit.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
