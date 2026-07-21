@@ -5,3 +5,12 @@ export interface Client {
   phone: string;
   city: string;
 }
+
+export interface Visit {
+  id: number;
+  clientName: string;
+  salesRep: string;
+  date: string;
+  notes: string;
+  status: "Completed" | "Pending" | "Cancelled";
+}
