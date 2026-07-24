@@ -14,3 +14,12 @@ export interface Visit {
   notes: string;
   status: "Completed" | "Pending" | "Cancelled";
 }
+
+export interface Sample{
+  id:number;
+  clientName:string;
+  productName:string;
+  quantity:number;
+  date:string;
+  notes:string 
+}
