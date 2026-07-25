@@ -97,35 +97,7 @@ const Clients = () => {
 
       {/* Client Table */}
       <div className="table-container">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Type</th>
-              <th>City</th>
-              <th>Phone</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {clients.map((client) => (
-              <tr key={client.id}>
-                <td><strong>{client.name}</strong></td>
-                <td><span className="client-type-badge">{client.type}</span></td>
-                <td>📍 {client.city}</td>
-                <td>📞 {client.phone}</td>
-                <td>
-                  <button
-                    className="btn-delete"
-                    onClick={() => handleDelete(client.id)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {clients.map((client)=>(<ClientCard client={client} onDelete={handleDelete} key={client.id}/>))}
       </div>
     </div>
   );
