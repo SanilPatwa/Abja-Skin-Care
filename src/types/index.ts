@@ -18,7 +18,8 @@ export interface Visit {
 export interface Sample {
   id: number;
   clientName: string;
-  clientCity: string;
   productName: string;
   quantity: number;
+  date: string;
+  notes: string;
 }
