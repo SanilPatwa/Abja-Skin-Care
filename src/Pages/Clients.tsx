@@ -13,7 +13,7 @@ const Clients = () => {
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>("All");
 
   useEffect(() => {
-    axios.get("http://localhost:3000/api/clients").then((res)=>{
+    axios.get("https://abja-skin-care.onrender.com/api/clients").then((res)=>{
       setClients(res.data);
     })
     .catch((err)=>
@@ -28,7 +28,7 @@ const Clients = () => {
       phone: newPhone.trim() || "Not provided",
       city: newCity.trim() || "Not specified",
     };
-    axios.post("http://localhost:3000/api/clients", newClient).then((res)=>{
+    axios.post("https://abja-skin-care.onrender.com/api/clients", newClient).then((res)=>{
       setClients([res.data,...clients]);
        setNewName("");
       setNewCity("");
@@ -39,7 +39,7 @@ const Clients = () => {
   };
 
  const handleDelete = (id: number) => {
-  axios.delete(`http://localhost:3000/api/clients/${id}`)
+  axios.delete(`https://abja-skin-care.onrender.com/api/clients/${id}`)
     .then(() => {
       setClients(clients.filter((client) => client.id !== id)); // Remove from screen
     })
