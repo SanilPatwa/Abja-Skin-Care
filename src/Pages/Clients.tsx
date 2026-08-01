@@ -1,49 +1,9 @@
 import { useEffect, useState } from "react";
 import type { Client } from "../types";
+import axios from "axios";
 
 const Clients = () => {
-  const [clients, setClients] = useState<Client[]>(() => {
-    const saved = localStorage.getItem("clients");
-    return saved
-      ? JSON.parse(saved)
-      : [
-          {
-            id: 1,
-            name: "Shejal Beauty Parlour",
-            type: "Salon",
-            phone: "6232933057",
-            city: "Jaipur",
-          },
-          {
-            id: 2,
-            name: "Samiksha Beauty Parlour",
-            type: "Salon",
-            phone: "6232933059",
-            city: "Delhi",
-          },
-          {
-            id: 3,
-            name: "Amisha Beauty Parlour",
-            type: "Parlour",
-            phone: "6232933050",
-            city: "Kolkata",
-          },
-          {
-            id: 4,
-            name: "Dr. Herbal Skincare Clinic",
-            type: "Doctor",
-            phone: "9823011420",
-            city: "Mumbai",
-          },
-          {
-            id: 5,
-            name: "Vedic Botanicals Store",
-            type: "Ayurvedic Store",
-            phone: "9123847291",
-            city: "Pune",
-          },
-        ];
-  });
+  const [clients, setClients] = useState<Client[]>(([]));
 
   const [newName, setNewName] = useState<string>("");
   const [newCity, setNewCity] = useState<string>("");
@@ -53,28 +13,39 @@ const Clients = () => {
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>("All");
 
   useEffect(() => {
-    localStorage.setItem("clients", JSON.stringify(clients));
-  }, [clients]);
+    axios.get("http://localhost:3000/api/clients").then((res)=>{
+      setClients(res.data);
+    })
+    .catch((err)=>
+      console.error("Error fetching clients", err));
+  },[]);
 
   const handleAdd = () => {
     if (!newName.trim()) return;
-    const newClient: Client = {
-      id: Date.now(),
+    const newClient = {
       name: newName.trim(),
       type: newType,
       phone: newPhone.trim() || "Not provided",
       city: newCity.trim() || "Not specified",
     };
-    setClients([newClient, ...clients]);
-    setNewName("");
-    setNewCity("");
-    setNewPhone("");
-    setNewType("Salon");
+    axios.post("http://localhost:3000/api/clients", newClient).then((res)=>{
+      setClients([res.data,...clients]);
+       setNewName("");
+      setNewCity("");
+      setNewPhone("");
+      setNewType("Salon");
+    })
+    .catch((err)=>console.error("Error adding client: ",err))
   };
 
-  const handleDelete = (id: number) => {
-    setClients(clients.filter((client) => client.id !== id));
-  };
+ const handleDelete = (id: number) => {
+  axios.delete(`http://localhost:3000/api/clients/${id}`)
+    .then(() => {
+      setClients(clients.filter((client) => client.id !== id)); // Remove from screen
+    })
+    .catch((err) => console.error("Error deleting client:", err));
+};
+
 
   const filteredClients = clients.filter((c) => {
     const matchesSearch =
