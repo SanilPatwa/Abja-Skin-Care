@@ -98,4 +98,4 @@ The React frontend will start running at `http://localhost:5173`.
 
 ## 👤 Author
 
-Developed with ❤️ for **Abja Skin Care**.
+Developed by Sanil for **Abja Skin Care**.
