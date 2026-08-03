@@ -2,6 +2,9 @@ const express = require("express");
 const pool = require("./db"); 
 const app = express();
 const cors = require("cors");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { error } = require("node:console");
 app.use(express.json());
 app.use(cors());
 
@@ -17,10 +20,50 @@ const clients = [
   { id: 2, name: "Samiksha Beauty Parlour", type: "Salon", phone: "6232933059", city: "Delhi" }
 ];
 
+pool.query(`CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`).then(()=>{
+    console.log("Users table is ready")
+  })
+  .catch(err=> console.error("Error creating users table: ", err))
 
-app.get('/',(req,res)=>{
-    res.send("Hello world")
-});
+
+app.post("/api/auth/register",async(req,res)=>{
+  const {email,password} = req.body;
+  if(!email || !password){
+    return res.status(400).json({
+      error:"Email and Password required"
+    })
+  }
+ try{
+   const hashedPassword = await bcrypt.hash(password,10);
+  const newUser = await pool.query("INSERT INTO users (email,password)VALUES ($1,$2) RETURNING id,email,created_at",[email,hashedPassword]);
+  res.status(201).json(newUser.rows[0])
+ }catch(err){
+  if(err.code === "23505"){
+    return res.status(400).json({
+      error:"Email already registered"
+    })
+  }
+ }
+})
+
+app.post("/api/auth/login",async(req,res)=>{
+  const {email,password} = req.body;
+  const userResult = await pool.query("SELECT * FROM users WHERE email = $1",[email]);
+  if(userResult.rows.length === 0){
+    res.status(400).json({
+      error:"Invalid Credentials"
+    })
+  }
+  const user = userResult.rows[0];
+
+  
+})
+  
 
 app.get("/api/clients", async (req, res) => {
   try {
