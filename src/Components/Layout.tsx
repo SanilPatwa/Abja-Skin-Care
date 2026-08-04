@@ -88,13 +88,36 @@ const Layout = () => {
           </li>
         </ul>
 
-        <div className="sidebar-footer">
-          <div className="user-avatar">A</div>
-          <div className="user-info">
-            <span className="user-name">Abja Care Admin</span>
-            <span className="user-role">Sales Director</span>
-          </div>
-        </div>
+       <div className="sidebar-footer" style={{ flexDirection: "column" }}>
+  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    <div className="user-avatar">A</div>
+    <div className="user-info">
+      <span className="user-name">Abja Care Admin</span>
+      <span className="user-role">Sales Director</span>
+    </div>
+  </div>
+
+  <button
+    onClick={() => {
+      localStorage.removeItem("token");
+      window.location.reload();
+    }}
+    style={{
+      marginTop: "12px",
+      width: "100%",
+      padding: "8px",
+      background: "#ff4d4f",
+      color: "#fff",
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer",
+      fontWeight: "bold"
+    }}
+  >
+    🚪 Logout
+  </button>
+</div>
+
       </aside>
 
       {/* Main Content Area */}
@@ -114,6 +137,7 @@ const Layout = () => {
         <div className="fade-in">
           <Outlet />
         </div>
+        
       </main>
     </div>
   );

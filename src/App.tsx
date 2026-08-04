@@ -1,11 +1,19 @@
+import { useState } from "react";
 import Layout from "./Components/Layout";
 import { Routes, Route } from "react-router-dom";
 import Dashboard from "./Pages/Dashboard";
 import Clients from "./Pages/Clients";
 import Visits from "./Pages/Visits";
 import Samples from "./Pages/Samples";
+import Login from "./Pages/Login";
 
 const App = () => {
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem("token"));
+
+  if (!token) {
+    return <Login onLoginSuccess={() => setToken(localStorage.getItem("token"))} />;
+  }
+
   return (
     <div>
       <Routes>

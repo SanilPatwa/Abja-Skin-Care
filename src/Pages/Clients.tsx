@@ -11,9 +11,12 @@ const Clients = () => {
   const [newType, setNewType] = useState<Client["type"]>("Salon");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>("All");
+  const getAuthHeaders = () => ({
+  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+});
 
   useEffect(() => {
-    axios.get("https://abja-skin-care.onrender.com/api/clients").then((res)=>{
+    axios.get("https://abja-skin-care.onrender.com/api/clients",getAuthHeaders()).then((res)=>{
       setClients(res.data);
     })
     .catch((err)=>
@@ -28,7 +31,7 @@ const Clients = () => {
       phone: newPhone.trim() || "Not provided",
       city: newCity.trim() || "Not specified",
     };
-    axios.post("https://abja-skin-care.onrender.com/api/clients", newClient).then((res)=>{
+    axios.post("https://abja-skin-care.onrender.com/api/clients", newClient,getAuthHeaders()).then((res)=>{
       setClients([res.data,...clients]);
        setNewName("");
       setNewCity("");
@@ -39,7 +42,7 @@ const Clients = () => {
   };
 
  const handleDelete = (id: number) => {
-  axios.delete(`https://abja-skin-care.onrender.com/api/clients/${id}`)
+  axios.delete(`https://abja-skin-care.onrender.com/api/clients/${id}`,getAuthHeaders())
     .then(() => {
       setClients(clients.filter((client) => client.id !== id)); // Remove from screen
     })
