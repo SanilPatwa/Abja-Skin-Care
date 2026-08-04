@@ -10,10 +10,12 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
   const [password, setPassword] = useState("");
   const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     const url = isRegistering
       ? "https://abja-skin-care.onrender.com/api/auth/register"
@@ -22,59 +24,109 @@ const Login = ({ onLoginSuccess }: LoginProps) => {
     axios
       .post(url, { email, password })
       .then((res) => {
+        setLoading(false);
         if (isRegistering) {
-          alert("Account registered! Please log in.");
+          alert("Account registered successfully! Please log in.");
           setIsRegistering(false);
+          setPassword("");
         } else {
           localStorage.setItem("token", res.data.token);
           onLoginSuccess();
         }
       })
       .catch((err) => {
-        setError(err.response?.data?.error || "Authentication failed");
+        setLoading(false);
+        setError(err.response?.data?.error || "Authentication failed. Please try again.");
       });
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "50px auto", padding: 20, textAlign: "center" }}>
-      <h2>{isRegistering ? "Create Account" : "Welcome Back"}</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <div className="auth-page">
+      <div className="auth-card">
+        {/* Luxury Brand Badge */}
+        <div style={{ textAlign: "center" }}>
+          <span className="auth-brand-badge">✨ Abja Exports & Skincare</span>
+          <h1 className="auth-title">🌸 Abja Skin Care</h1>
+          <p className="auth-subtitle">
+            {isRegistering
+              ? "Register a new partner account to access CRM portal"
+              : "Portal for Salons, Doctors & Retail Partners"}
+          </p>
+        </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          placeholder="Email Address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          style={{ width: "100%", padding: 10, marginBottom: 10 }}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{ width: "100%", padding: 10, marginBottom: 10 }}
-        />
-        <button type="submit" style={{ width: "100%", padding: 10, cursor: "pointer" }}>
-          {isRegistering ? "Register" : "Login"}
-        </button>
-      </form>
+        {/* Tab Toggle */}
+        <div className="auth-tabs">
+          <button
+            type="button"
+            className={`auth-tab-btn ${!isRegistering ? "active" : ""}`}
+            onClick={() => {
+              setIsRegistering(false);
+              setError("");
+            }}
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            className={`auth-tab-btn ${isRegistering ? "active" : ""}`}
+            onClick={() => {
+              setIsRegistering(true);
+              setError("");
+            }}
+          >
+            Create Account
+          </button>
+        </div>
 
-      <p style={{ marginTop: 15 }}>
-        {isRegistering ? "Already have an account?" : "Don't have an account?"}{" "}
-        <button
-          type="button"
-          onClick={() => {
-            setIsRegistering(!isRegistering);
-            setError("");
-          }}
-          style={{ background: "none", border: "none", color: "blue", cursor: "pointer" }}
-        >
-          {isRegistering ? "Login here" : "Sign up here"}
-        </button>
-      </p>
+        {/* Error Alert */}
+        {error && (
+          <div className="auth-error-alert" style={{ marginBottom: 18 }}>
+            <span>⚠️</span>
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Auth Form */}
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="auth-field-group">
+            <label>Email Address</label>
+            <div className="auth-input-wrapper">
+              <span className="auth-input-icon">✉️</span>
+              <input
+                type="email"
+                placeholder="admin@abjacare.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="auth-input"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="auth-field-group">
+            <label>Password</label>
+            <div className="auth-input-wrapper">
+              <span className="auth-input-icon">🔒</span>
+              <input
+                type="password"
+                placeholder="••••••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="auth-input"
+                required
+              />
+            </div>
+          </div>
+
+          <button type="submit" className="auth-submit-btn" disabled={loading}>
+            {loading ? (
+              <span>⏳ Processing...</span>
+            ) : (
+              <span>{isRegistering ? "Create Partner Account ✨" : "Sign In to Portal 🚀"}</span>
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
