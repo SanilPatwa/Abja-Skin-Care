@@ -4,7 +4,7 @@ import axios from "axios";
 import CsvImportModal from "../Components/CsvImportModal";
 
 const Clients = () => {
-  const [clients, setClients] = useState<Client[]>(([]));
+  const [clients, setClients] = useState<Client[]>([]);
   const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
 
   const [newName, setNewName] = useState<string>("");
@@ -13,17 +13,19 @@ const Clients = () => {
   const [newType, setNewType] = useState<Client["type"]>("Salon");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedTypeFilter, setSelectedTypeFilter] = useState<string>("All");
+
   const getAuthHeaders = () => ({
-  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-});
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+  });
 
   useEffect(() => {
-    axios.get("https://abja-skin-care.onrender.com/api/clients",getAuthHeaders()).then((res)=>{
-      setClients(res.data);
-    })
-    .catch((err)=>
-      console.error("Error fetching clients", err));
-  },[]);
+    axios
+      .get("https://abja-skin-care.onrender.com/api/clients", getAuthHeaders())
+      .then((res) => {
+        setClients(res.data);
+      })
+      .catch((err) => console.error("Error fetching clients", err));
+  }, []);
 
   const handleAdd = () => {
     if (!newName.trim()) return;
@@ -31,26 +33,28 @@ const Clients = () => {
       name: newName.trim(),
       type: newType,
       phone: newPhone.trim() || "Not provided",
-      city: newCity.trim() || "Not specified",
+      city: newCity.trim() || "Not specified"
     };
-    axios.post("https://abja-skin-care.onrender.com/api/clients", newClient,getAuthHeaders()).then((res)=>{
-      setClients([res.data,...clients]);
-       setNewName("");
-      setNewCity("");
-      setNewPhone("");
-      setNewType("Salon");
-    })
-    .catch((err)=>console.error("Error adding client: ",err))
+    axios
+      .post("https://abja-skin-care.onrender.com/api/clients", newClient, getAuthHeaders())
+      .then((res) => {
+        setClients([res.data, ...clients]);
+        setNewName("");
+        setNewCity("");
+        setNewPhone("");
+        setNewType("Salon");
+      })
+      .catch((err) => console.error("Error adding client: ", err));
   };
 
- const handleDelete = (id: number) => {
-  axios.delete(`https://abja-skin-care.onrender.com/api/clients/${id}`,getAuthHeaders())
-    .then(() => {
-      setClients(clients.filter((client) => client.id !== id)); // Remove from screen
-    })
-    .catch((err) => console.error("Error deleting client:", err));
-};
-
+  const handleDelete = (id: number) => {
+    axios
+      .delete(`https://abja-skin-care.onrender.com/api/clients/${id}`, getAuthHeaders())
+      .then(() => {
+        setClients(clients.filter((client) => client.id !== id));
+      })
+      .catch((err) => console.error("Error deleting client:", err));
+  };
 
   const filteredClients = clients.filter((c) => {
     const matchesSearch =
@@ -63,8 +67,51 @@ const Clients = () => {
 
   return (
     <div className="fade-in">
+      {/* Top Header Bar with CSV Button */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "24px",
+          gap: "16px",
+          flexWrap: "wrap"
+        }}
+      >
+        <div>
+          <h2 style={{ fontSize: "22px", fontWeight: 700, margin: 0, color: "var(--text-main)" }}>
+            👥 Client Directory
+          </h2>
+          <p style={{ fontSize: "13.5px", color: "var(--text-muted)", margin: "4px 0 0 0" }}>
+            Manage salon, parlour, doctor & retail store partnerships
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsCsvModalOpen(true)}
+          style={{
+            padding: "12px 24px",
+            borderRadius: "12px",
+            border: "none",
+            background: "linear-gradient(135deg, #4a7c6d 0%, #2d7a64 100%)",
+            color: "#ffffff",
+            fontWeight: 600,
+            fontSize: "14px",
+            cursor: "pointer",
+            boxShadow: "0 6px 18px rgba(45, 122, 100, 0.35)",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            transition: "all 0.2s ease"
+          }}
+        >
+          <span>📥</span> Import Clients from CSV
+        </button>
+      </div>
+
       {/* Add Client Form */}
-      <div className="add-client-form">
+      <div className="add-client-form" style={{ marginBottom: "28px" }}>
         <div className="form-group">
           <label>Client / Business Name</label>
           <input
@@ -79,12 +126,12 @@ const Clients = () => {
           <input
             value={newCity}
             onChange={(e) => setNewCity(e.target.value)}
-            placeholder="e.g. Mumbai"
+            placeholder="e.g. Jaipur"
           />
         </div>
 
         <div className="form-group">
-          <label>Contact Phone</label>
+          <label>Phone Number</label>
           <input
             value={newPhone}
             onChange={(e) => setNewPhone(e.target.value)}
@@ -105,27 +152,22 @@ const Clients = () => {
           </select>
         </div>
 
-        <div style={{ display: "flex", gap: "10px", width: "100%", marginTop: "10px" }}>
-          <button className="btn-add" onClick={handleAdd} style={{ flex: 1 }}>
-            <span>✨</span> Add Client Partner
-          </button>
-          <button
-            className="btn-add"
-            type="button"
-            onClick={() => setIsCsvModalOpen(true)}
-            style={{
-              flex: 1,
-              background: "linear-gradient(135deg, #4a7c6d 0%, #2d7a64 100%)",
-              boxShadow: "0 4px 14px rgba(74, 124, 109, 0.3)"
-            }}
-          >
-            <span>📥</span> Import CSV
-          </button>
-        </div>
+        <button className="btn-add" onClick={handleAdd}>
+          <span>✨</span> Add Client Partner
+        </button>
       </div>
 
       {/* Filter and Search Bar */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "20px",
+          flexWrap: "wrap",
+          gap: "12px"
+        }}
+      >
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
           {["All", "Salon", "Doctor", "Ayurvedic Store", "Parlour"].map((type) => (
             <button
@@ -148,60 +190,69 @@ const Clients = () => {
           ))}
         </div>
 
-        <div className="search-bar">
-          <span className="search-icon">🔍</span>
-          <input
-            type="text"
-            placeholder="Search clients or city..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
+        <input
+          type="text"
+          placeholder="🔍 Search clients by name, city..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            padding: "10px 16px",
+            borderRadius: "12px",
+            border: "1px solid rgba(210,195,180,0.7)",
+            outline: "none",
+            fontSize: "13.5px",
+            width: "280px"
+          }}
+        />
       </div>
 
-      {/* Clients Sheet Table */}
-      {filteredClients.length === 0 ? (
-        <div className="glass-card" style={{ textAlign: "center", padding: "40px", color: "var(--text-muted)" }}>
-          <p style={{ fontSize: "28px", marginBottom: "8px" }}>🌸</p>
-          <p style={{ fontWeight: "600" }}>No clients found matching your search.</p>
-        </div>
-      ) : (
-        <div className="table-container">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Client Name</th>
-                <th>Category</th>
-                <th>City</th>
-                <th>Contact Phone</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredClients.map((client) => (
-                <tr key={client.id}>
-                  <td>
-                    <strong>{client.name}</strong>
-                  </td>
-                  <td>
-                    <span className="client-type-badge">{client.type}</span>
-                  </td>
-                  <td>📍 {client.city}</td>
-                  <td>📞 {client.phone}</td>
-                  <td>
-                    <button
-                      className="btn-delete"
-                      onClick={() => handleDelete(client.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {/* Client List */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "20px" }}>
+        {filteredClients.map((client) => (
+          <div key={client.id} className="card" style={{ padding: "20px", position: "relative" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+              <h3 style={{ fontSize: "17px", fontWeight: 700, color: "var(--text-main)" }}>{client.name}</h3>
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  padding: "4px 10px",
+                  borderRadius: "12px",
+                  background: "var(--primary-rose-light)",
+                  color: "var(--primary-rose-hover)"
+                }}
+              >
+                {client.type}
+              </span>
+            </div>
+            <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "6px" }}>📍 {client.city}</p>
+            <p style={{ fontSize: "13px", color: "var(--text-muted)", marginBottom: "16px" }}>📞 {client.phone}</p>
+            <button
+              onClick={() => handleDelete(client.id)}
+              style={{
+                width: "100%",
+                padding: "8px",
+                borderRadius: "8px",
+                border: "1px solid #f8b4b4",
+                background: "#fde8e8",
+                color: "#9b1c1c",
+                fontWeight: 600,
+                fontSize: "12.5px",
+                cursor: "pointer"
+              }}
+            >
+              🗑️ Delete Client
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* CSV Column Mapping Modal */}
+      <CsvImportModal
+        isOpen={isCsvModalOpen}
+        onClose={() => setIsCsvModalOpen(false)}
+        onImportSuccess={(newClients) => setClients([...newClients, ...clients])}
+      />
     </div>
   );
 };
