@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Papa from "papaparse";
 import axios from "axios";
 import type { Client } from "../types";
 
@@ -11,7 +10,7 @@ interface CsvImportModalProps {
 
 const CsvImportModal = ({ isOpen, onClose, onImportSuccess }: CsvImportModalProps) => {
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
-  const [rawData, setRawData] = useState<any[]>([]);
+  const [rawData, setRawData] = useState<Record<string, string>[]>([]);
   const [columnMapping, setColumnMapping] = useState({
     name: "",
     type: "",
@@ -23,19 +22,40 @@ const CsvImportModal = ({ isOpen, onClose, onImportSuccess }: CsvImportModalProp
 
   if (!isOpen) return null;
 
+  // Lightweight Built-in CSV Parser (Zero npm dependencies required)
+  const parseCsvText = (text: string) => {
+    const lines = text.split(/\r\n|\n/).filter((line) => line.trim() !== "");
+    if (lines.length === 0) return { headers: [], data: [] };
+
+    const headers = lines[0].split(",").map((h) => h.trim().replace(/^["']|["']$/g, ""));
+    
+    const data = lines.slice(1).map((line) => {
+      const values = line.split(",").map((v) => v.trim().replace(/^["']|["']$/g, ""));
+      const row: Record<string, string> = {};
+      headers.forEach((h, idx) => {
+        row[h] = values[idx] || "";
+      });
+      return row;
+    });
+
+    return { headers, data };
+  };
+
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setError("");
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        if (results.meta.fields && results.meta.fields.length > 0) {
-          const headers = results.meta.fields;
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const { headers, data } = parseCsvText(text);
+
+        if (headers.length > 0) {
           setCsvHeaders(headers);
-          setRawData(results.data);
+          setRawData(data);
 
           // Smart auto-matching headers
           const autoMap = {
@@ -46,11 +66,15 @@ const CsvImportModal = ({ isOpen, onClose, onImportSuccess }: CsvImportModalProp
           };
           setColumnMapping(autoMap);
         } else {
-          setError("No headers found in the selected CSV file.");
+          setError("No valid headers found in the selected CSV file.");
         }
-      },
-      error: () => setError("Failed to parse CSV file.")
-    });
+      } catch (err) {
+        console.error(err);
+        setError("Failed to read CSV file.");
+      }
+    };
+
+    reader.readAsText(file);
   };
 
   const handleImport = () => {
@@ -234,9 +258,9 @@ const CsvImportModal = ({ isOpen, onClose, onImportSuccess }: CsvImportModalProp
               </div>
             </div>
 
-            {/* Preview Section */}
+            {/* Row Count Info */}
             <div style={{ marginBottom: 20 }}>
-              <span style={{ fontSize: 12, fontWeight: 600, color: "#666" }}>
+              <span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--sage-green)" }}>
                 Found {rawData.length} rows in CSV. Ready to import!
               </span>
             </div>
