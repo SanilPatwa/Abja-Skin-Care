@@ -126,6 +126,39 @@ app.post("/api/clients",authenticateToken,async(req,res)=>{
     }
 })
 
+// Bulk Insert Endpoint for CSV Import
+app.post("/api/clients/bulk", authenticateToken, async (req, res) => {
+  const { clients } = req.body;
+  if (!Array.isArray(clients) || clients.length === 0) {
+    return res.status(400).json({ error: "Clients list is required" });
+  }
+
+  try {
+    const values = [];
+    const valueStrings = clients.map((c, i) => {
+      const idx = i * 4;
+      values.push(
+        c.name || "Unnamed Client",
+        c.type || "Salon",
+        c.phone || "Not provided",
+        c.city || "Not specified"
+      );
+      return `($${idx + 1}, $${idx + 2}, $${idx + 3}, $${idx + 4})`;
+    }).join(", ");
+
+    const query = `INSERT INTO clients (name, type, phone, city) VALUES ${valueStrings} RETURNING *`;
+    const result = await pool.query(query, values);
+
+    res.status(201).json({
+      message: `Successfully imported ${result.rows.length} clients`,
+      importedClients: result.rows
+    });
+  } catch (err) {
+    console.error("Bulk insert error:", err);
+    res.status(500).json({ error: "Failed to import clients" });
+  }
+});
+
 app.delete("/api/clients/:id",authenticateToken,async(req,res)=>{
   try{
     const id = req.params.id;

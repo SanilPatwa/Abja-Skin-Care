@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import type { Client } from "../types";
 import axios from "axios";
+import CsvImportModal from "../Components/CsvImportModal";
 
 const Clients = () => {
   const [clients, setClients] = useState<Client[]>(([]));
+  const [isCsvModalOpen, setIsCsvModalOpen] = useState(false);
 
   const [newName, setNewName] = useState<string>("");
   const [newCity, setNewCity] = useState<string>("");
@@ -103,9 +105,23 @@ const Clients = () => {
           </select>
         </div>
 
-        <button className="btn-add" onClick={handleAdd}>
-          <span>✨</span> Add Client Partner
-        </button>
+        <div style={{ display: "flex", gap: "10px", width: "100%", marginTop: "10px" }}>
+          <button className="btn-add" onClick={handleAdd} style={{ flex: 1 }}>
+            <span>✨</span> Add Client Partner
+          </button>
+          <button
+            className="btn-add"
+            type="button"
+            onClick={() => setIsCsvModalOpen(true)}
+            style={{
+              flex: 1,
+              background: "linear-gradient(135deg, #4a7c6d 0%, #2d7a64 100%)",
+              boxShadow: "0 4px 14px rgba(74, 124, 109, 0.3)"
+            }}
+          >
+            <span>📥</span> Import CSV
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -116,16 +132,15 @@ const Clients = () => {
               key={type}
               onClick={() => setSelectedTypeFilter(type)}
               style={{
-                padding: "6px 16px",
+                padding: "8px 16px",
                 borderRadius: "20px",
-                fontSize: "12px",
-                fontWeight: "600",
-                border: "1px solid var(--card-border)",
+                border: "none",
+                background: selectedTypeFilter === type ? "var(--primary-rose)" : "#fff",
+                color: selectedTypeFilter === type ? "#fff" : "var(--text-main)",
+                fontWeight: 600,
+                fontSize: "13px",
                 cursor: "pointer",
-                transition: "var(--transition-fast)",
-                background: selectedTypeFilter === type ? "var(--primary-rose)" : "var(--card-bg)",
-                color: selectedTypeFilter === type ? "#ffffff" : "var(--text-muted)",
-                boxShadow: selectedTypeFilter === type ? "0 4px 12px rgba(217, 119, 127, 0.3)" : "none",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.05)"
               }}
             >
               {type}
