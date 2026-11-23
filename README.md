@@ -46,10 +46,25 @@ A full-stack, production-ready Customer Relationship Management (CRM) web applic
 
 | Method | Endpoint | Description | Request Body / Params | Status Code |
 | :--- | :--- | :--- | :--- | :--- |
+| `GET` | `/health` | Health check & DB ping (keeps Render + DB active) | N/A | `200 OK` / `500` |
+| `GET` | `/api/health` | Health check alias | N/A | `200 OK` / `500` |
 | `GET` | `/api/clients` | Retrieve all clients | N/A | `200 OK` |
 | `POST` | `/api/clients` | Create a new client | `{ name, type, phone, city }` | `201 Created` |
 | `PUT` | `/api/clients/:id` | Update an existing client | Param: `:id`, Body: `{ name, type, phone, city }` | `200 OK` / `404` |
 | `DELETE` | `/api/clients/:id` | Delete a client by ID | Param: `:id` | `200 OK` / `404` |
+
+---
+
+## ⏰ Keeping Render & Database Always Awake
+
+Render's free tier spins down web services after 15 minutes of inactivity, causing ~50-60 second cold starts on the next request. Free cloud databases can also pause after prolonged inactivity.
+
+To keep both Render and the database active 24/7:
+1. Create a free account on [cron-job.org](https://cron-job.org) or [UptimeRobot](https://uptimerobot.com).
+2. Create a monitor targeting:
+   `https://abja-skin-care.onrender.com/health`
+3. Set execution frequency to every **10 minutes** (HTTP `GET`).
+4. Each request queries the database (`SELECT NOW()`), preventing cold boots and idle pauses.
 
 ---
 

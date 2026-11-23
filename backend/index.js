@@ -30,6 +30,26 @@ pool.query(`CREATE TABLE IF NOT EXISTS users (
   })
   .catch(err=> console.error("Error creating users table: ", err))
 
+// Health check endpoint - touches the DB to keep Render server and Cloud Database active
+app.get(["/health", "/api/health"], async (req, res) => {
+  try {
+    const result = await pool.query("SELECT NOW()");
+    res.status(200).json({
+      status: "ok",
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+      database: "connected",
+      dbTime: result.rows[0].now
+    });
+  } catch (err) {
+    console.error("Health check database query failed:", err);
+    res.status(500).json({
+      status: "error",
+      database: "disconnected",
+      error: err.message
+    });
+  }
+});
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
@@ -191,6 +211,7 @@ app.put("/api/clients/:id",authenticateToken,async(req,res)=>{
   }
 })
 
-app.listen(3000,()=>{
-    console.log('server is running at port 3000')
-})
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running at port ${PORT}`);
+});
